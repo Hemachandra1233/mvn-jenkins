@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_mvn_jenkins_1685088801167-push-trigger-input-set
+  identifier: Build_mvn_jenkins_1685088801167pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: MyMaven
+  pipeline:
+    identifier: Build_mvn_jenkins_1685088801167
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
