@@ -16,6 +16,9 @@
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
+	<properties>
+        	<harnessArgLine></harnessArgLine>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -41,6 +44,14 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<plugin>
+    				<groupId>org.apache.maven.plugins</groupId>
+    				<artifactId>maven-surefire-plugin</artifactId>
+   				<version>2.22.2</version>
+    				<configuration>
+        				<argLine>${harnessArgLine}  @{argLine} </argLine>
+    				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
