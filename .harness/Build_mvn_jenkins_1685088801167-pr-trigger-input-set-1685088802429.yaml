@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_mvn_jenkins_1685088801167-pr-trigger-input-set
+  identifier: Build_mvn_jenkins_1685088801167prtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: MyMaven
+  pipeline:
+    identifier: Build_mvn_jenkins_1685088801167
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
