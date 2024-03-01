@@ -1,0 +1,16 @@
+name: Deploy Springboot application on to Azure App Service
+run-name: ${{ github.actor }} has triggered CD process.
+on: 
+  workflow_dispatch:
+  
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: test
+      run: echo "Hello World"
