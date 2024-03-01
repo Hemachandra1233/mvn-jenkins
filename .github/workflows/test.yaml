@@ -23,3 +23,6 @@ jobs:
         
     - name: Build Maven Project
       run: mvn clean package -DskipTests
+
+    - name: Save Jar File to artifact
+      run: cd target && ls
