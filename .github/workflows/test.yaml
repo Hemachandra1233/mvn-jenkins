@@ -12,9 +12,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       
-    - name: test
-      run: echo "Hello World"
-      
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
@@ -25,4 +22,7 @@ jobs:
       run: mvn clean package -DskipTests
 
     - name: Save Jar File to artifact
-      run: cd target && ls
+      uses: actions/upload-artifact@v2
+        with:
+          name: springboot-example
+          path: ${{ github.workspace }}/target/*.jar
