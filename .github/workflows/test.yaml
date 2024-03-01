@@ -14,3 +14,12 @@ jobs:
       
     - name: test
       run: echo "Hello World"
+      
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+        
+    - name: Build Maven Project
+      run: mvn clean package -DskipTests
