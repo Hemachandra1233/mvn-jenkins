@@ -23,6 +23,6 @@ jobs:
 
     - name: Save Jar File to artifact
       uses: actions/upload-artifact@v2
-        with:
-          name: springboot-example
-          path: ${{ github.workspace }}/target/*.jar
+      with:
+        name: springboot-example
+        path: ${{ github.workspace }}/target/*.jar
