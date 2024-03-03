@@ -45,7 +45,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'swap-exa'
+        app-name: 'Final-Test-Hema'
         slot-name: 'production'
         publish-profile: ${{ secrets.TEST_PUBLISH_PROFILE }}
         images: 'hemachandratest.azurecr.io/${{ secrets.REGISTRY_USERNAME }}/hello-spring:${{ github.sha }}'
