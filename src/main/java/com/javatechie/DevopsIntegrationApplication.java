@@ -16,7 +16,7 @@ public class DevopsIntegrationApplication {
 
 	@GetMapping("/hello")
 	public String message2(){
-		return "Hello World";
+		return "Hello World 123";
 	}
 
 	public static void main(String[] args) {
