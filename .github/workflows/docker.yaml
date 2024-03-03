@@ -19,7 +19,6 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Docker Build and Push
-      run: |
+    - run: |
         docker build . -t ${{ vars.LOGIN_SERVER }}/${{ vars.APP_NAME }}:${{ github.sha }}
         docker push ${{ vars.LOGIN_SERVER }}/${{ vars.APP_NAME }}:${{ github.sha }} 
