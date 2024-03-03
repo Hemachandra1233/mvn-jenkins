@@ -35,7 +35,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'hema-webapp'
+        app-name: 'hema-tes'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfileDocker }}
         images: 'hemachandratest.azurecr.io/${{ secrets.REGISTRY_USERNAME }}/hello-spring:${{ github.sha }}'
