@@ -34,4 +34,8 @@ public class DevopsIntegrationApplication {
 		SpringApplication.run(DevopsIntegrationApplication.class, args);
 	}
 
+	@GetMapping
+	public String getHello() {
+		return "Hello Swap Hema";
+	}
 }
