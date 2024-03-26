@@ -21,17 +21,17 @@ jobs:
     - uses: azure/docker-login@v1
       with:
         login-server: usfacr.azurecr.io/
-        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}
-        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_17AB898F69C0492AADE4A32AEF056B63 }}
+        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_5A14149998AE49CAA0B56937B40BDFA8 }}
+        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_89A45C6E0B2F461392245CD5C4D366C3 }}
 
     - run: |
-        docker build . -t usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
-        docker push usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
+        docker build . -t usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_5A14149998AE49CAA0B56937B40BDFA8 }}/hemachandratest/hello-spring:${{ github.sha }}
+        docker push usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_5A14149998AE49CAA0B56937B40BDFA8 }}/hemachandratest/hello-spring:${{ github.sha }}
 
     - uses: azure/webapps-deploy@v2
       with:
         app-name: usfdemowebapp
         slot-name: Production
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_35143420F101416F940A9435E966B7A6 }}
-        images: usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4904C45519484652AACCF0831D6821A9 }}
+        images: usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_5A14149998AE49CAA0B56937B40BDFA8 }}/hemachandratest/hello-spring:${{ github.sha }}
 
