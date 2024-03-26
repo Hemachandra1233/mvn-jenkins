@@ -1,0 +1,37 @@
+# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
+# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
+
+name: Azure App Service - usfdemowebapp(Production), Build and deploy container app
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # checkout the repo
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@master
+
+
+    - uses: azure/docker-login@v1
+      with:
+        login-server: usfacr.azurecr.io/
+        username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}
+        password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_17AB898F69C0492AADE4A32AEF056B63 }}
+
+    - run: |
+        docker build . -t usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
+        docker push usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: usfdemowebapp
+        slot-name: Production
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_35143420F101416F940A9435E966B7A6 }}
+        images: usfacr.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_C1CD46FD31804AFCAE9ADD1D00A2BE59 }}/hemachandratest/hello-spring:${{ github.sha }}
+
