@@ -56,7 +56,6 @@ jobs:
           GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
         run: |
           cd target-repo
-          gh auth login --with-token <<< "$GH_TOKEN"
           gh pr create \
             --title "Automated update" \
             --body "This PR was created automatically by GitHub Actions." \
