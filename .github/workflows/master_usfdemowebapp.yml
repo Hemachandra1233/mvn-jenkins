@@ -6,7 +6,7 @@ name: Azure App Service - usfdemowebapp(Production), Build and deploy container 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-deploy:

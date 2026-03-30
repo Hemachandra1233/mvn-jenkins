@@ -25,6 +25,8 @@ jobs:
 
       - name: Update file
         run: |
+          ls
+          pwd
           cd mvn-test
           echo "Updated at $(date)" >> example.txt
           cat example.txt
