@@ -24,41 +24,45 @@ jobs:
           token: ${{ secrets.TARGET_REPO_TOKEN }}
           path: target-repo
 
-      - name: Update file
-        run: |
-          ls
-          pwd
-          cd target-repo
-          echo "Updated at $(date)" >> example.txt
-          cat example.txt
-
-      - name: Create branch, commit, push
-        run: |
-          cd target-repo
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          BRANCH_NAME="auto-update-$(date +%s)"
-          git checkout -b $BRANCH_NAME
-
-          git add .
-          git commit -m "Automated update" || echo "No changes to commit"
-          git push origin $BRANCH_NAME
-
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+    #   - name: Update file
+    #     run: |
+    #       ls
+    #       pwd
+    #       cd target-repo
+    #       echo "Updated at $(date)" >> example.txt
+    #       cat example.txt
 
       - name: Install GitHub CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
 
-      - name: Create Pull Request using gh
+      - name: Create branch, update spec, commit, push and create a PR
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
         run: |
           cd target-repo
-          gh pr create \
-            --title "Automated update" \
-            --body "This PR was created automatically by GitHub Actions." \
-            --base main \
-            --head $BRANCH_NAME
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          for env in dev test uat prod; do
+            git checkout $env
+            git pull origin $env
+            BRANCH_NAME="auto-update-$env-$(date +%s)"
+            git checkout -b $BRANCH_NAME
+            echo "Updated at $(date)" >> example.txt
+
+            echo "commiting code to target repo"
+
+            git add .
+            git commit -m "Automated update" || echo "No changes to commit"
+            git push origin $BRANCH_NAME
+
+            gh pr create \
+                --title "Automated update" \
+                --body "This PR was created automatically by GitHub Actions." \
+                --base main \
+                --head $BRANCH_NAME
+
+            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          done
