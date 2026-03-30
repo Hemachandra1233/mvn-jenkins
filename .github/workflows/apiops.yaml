@@ -23,6 +23,7 @@ jobs:
           repository: Hemachandra1233/mvn-test
           token: ${{ secrets.TARGET_REPO_TOKEN }}
           path: target-repo
+          fetch-depth: 0
 
     #   - name: Update file
     #     run: |
@@ -61,7 +62,7 @@ jobs:
             gh pr create \
                 --title "Automated update" \
                 --body "This PR was created automatically by GitHub Actions." \
-                --base main \
+                --base $env \
                 --head $BRANCH_NAME
 
             echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
