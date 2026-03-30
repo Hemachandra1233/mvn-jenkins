@@ -1,0 +1,100 @@
+name: Reusable Build and Deploy Dev API
+
+on:
+  workflow_call:
+    inputs:
+      app_service_name:
+        description: "Azure Web App name"
+        required: true
+        type: string
+      node_version:
+        description: "Node.js version"
+        required: false
+        type: string
+        default: "24"
+      acr_login_server:
+        description: "Azure Container Registry login server"
+        required: true
+        type: string
+      image_name:
+        description: "Docker image name"
+        required: true
+        type: string
+    secrets:
+      AZURE_DEVOPS_NPM_TOKEN:
+        required: true
+      ACR_USERNAME:
+        required: true
+      ACR_PASSWORD:
+        required: true
+      DEV_API_PUBLISHPROFILE:
+        required: true
+
+env:
+  NODE_VERSION: ${{ inputs.node_version }}
+  APP_SERVICE_NAME: ${{ inputs.app_service_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          always-auth: true
+          registry-url: "https://pkgs.dev.azure.com/my-org/CAI/_packaging/mtam-cai-api/npm/registry/"
+
+      # PR Flow → Install all deps + run tests
+      - name: Install Dependencies (Include Dev)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_NPM_TOKEN }}
+
+      - name: Run Tests
+        if: ${{ github.event_name == 'pull_request' }}
+        run: npm test
+
+      # Push/Manual Flow → Production install
+      - name: Install Dependencies (Production Only)
+        if: ${{ github.event_name != 'pull_request' }}
+        run: npm install --production --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_NPM_TOKEN }}
+
+      - name: Log in to ACR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ inputs.acr_login_server }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          docker build . -t ${{ inputs.acr_login_server }}/${{ inputs.image_name }}:${{ github.sha }}
+          docker push ${{ inputs.acr_login_server }}/${{ inputs.image_name }}:${{ github.sha }}
+
+  deploy:
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: "production"
+      url: ${{ steps.deploy.outputs.webapp-url }}
+
+    steps:
+      - name: Deploy to Azure Web App
+        id: deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.app_service_name }}
+          slot-name: "production"
+          publish-profile: ${{ secrets.DEV_API_PUBLISHPROFILE }}
+          images: "${{ inputs.acr_login_server }}/${{ inputs.image_name }}:${{ github.sha }}"
