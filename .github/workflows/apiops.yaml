@@ -1,0 +1,62 @@
+name: Update file in another repo and create PR
+
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+      - master
+
+env:
+    API_NAME: "dev-api"
+jobs:
+  update-and-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: Hemachandra1233/mvn-test
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
+          path: target-repo
+
+      - name: Update file
+        run: |
+          cd mvn-test
+          echo "Updated at $(date)" >> example.txt
+          cat example.txt
+
+      - name: Create branch, commit, push
+        run: |
+          cd target-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          BRANCH_NAME="auto-update-$(date +%s)"
+          git checkout -b $BRANCH_NAME
+
+          git add .
+          git commit -m "Automated update" || echo "No changes to commit"
+          git push origin $BRANCH_NAME
+
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      - name: Create Pull Request using gh
+        env:
+          GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        run: |
+          cd target-repo
+          gh auth login --with-token <<< "$GH_TOKEN"
+          gh pr create \
+            --title "Automated update" \
+            --body "This PR was created automatically by GitHub Actions." \
+            --base main \
+            --head $BRANCH_NAME
