@@ -27,7 +27,7 @@ jobs:
         run: |
           ls
           pwd
-          cd mvn-test
+          cd target-repo
           echo "Updated at $(date)" >> example.txt
           cat example.txt
 
