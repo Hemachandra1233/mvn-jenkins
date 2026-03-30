@@ -1,10 +1,11 @@
 name: Update file in another repo and create PR
 
 on:
-  workflow_dispatch:
-  push:
-    branches: 
-      - master
+  workflow_call:
+    secrets:
+        TARGET_REPO_TOKEN:
+            required: true
+
 
 env:
     API_NAME: "dev-api"
