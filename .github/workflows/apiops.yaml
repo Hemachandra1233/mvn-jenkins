@@ -7,10 +7,14 @@ on:
         description: "Name of the API to update"
         required: false
         type: string
+      spec_file_path:
+        description: "Path to the specification file in the source repo"
+        required: false
+        type: string
+        default: "api/specification.json"
     secrets:
         TARGET_REPO_TOKEN:
             required: true
-
 
 env:
     API_NAME: ${{ inputs.api_name }}
@@ -41,10 +45,10 @@ jobs:
     #       echo "Updated at $(date)" >> example.txt
     #       cat example.txt
 
-      # - name: Install GitHub CLI
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y gh
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
 
       - name: Check for spec changes
         id: spec-check
@@ -61,39 +65,40 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check current directory and list files
-        if: steps.spec-check.outputs.changed == 'true'
-        run: |
-          pwd
-          ls -la
-
-      # - name: Create branch, update spec, commit, push and create a PR
-      #   env:
-      #     GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+      # - name: Check current directory and list files
+      #   if: steps.spec-check.outputs.changed == 'true'
       #   run: |
-      #     cd target-repo
-      #     ls
-      #     git config user.name "github-actions"
-      #     git config user.email "github-actions@github.com"
+      #     pwd
+      #     ls -la
 
-      #     for env in dev test uat prod; do
-      #       git checkout $env
-      #       git pull origin $env
-      #       BRANCH_NAME="auto-update-$env-$(date +%s)"
-      #       git checkout -b $BRANCH_NAME
-      #       cp ../source-repo/api/specification.json ./published-artifacts/apis/dev-api/specification.json
+      - name: Create branch, update spec, commit, push and create a PR
+        if: steps.spec-check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        run: |
+          cd target-repo
+          ls
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
-      #       echo "commiting code to target repo"
+          for env in dev test uat prod; do
+            git checkout $env
+            git pull origin $env
+            BRANCH_NAME="auto-update-$env-$(date +%s)"
+            git checkout -b $BRANCH_NAME
+            cp ../source-repo/api/${{inputs.spec_file_path}} ./published-artifacts/apis/$API_NAME/specification.json
 
-      #       git add .
-      #       git commit -m "Automated update" || echo "No changes to commit"
-      #       git push origin $BRANCH_NAME
+            echo "commiting code to target repo"
 
-      #       gh pr create \
-      #           --title "Automated update" \
-      #           --body "This PR was created automatically by GitHub Actions." \
-      #           --base $env \
-      #           --head $BRANCH_NAME
+            git add .
+            git commit -m "Spec update $env" || echo "No changes to commit"
+            git push origin $BRANCH_NAME
 
-      #       echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-      #     done
+            gh pr create \
+                --title "Spec update $env" \
+                --body "This PR has spec updates." \
+                --base $env \
+                --head $BRANCH_NAME
+
+            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          done
