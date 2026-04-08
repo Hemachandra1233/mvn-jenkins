@@ -41,46 +41,59 @@ jobs:
     #       echo "Updated at $(date)" >> example.txt
     #       cat example.txt
 
-      - name: Install GitHub CLI
+      # - name: Install GitHub CLI
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y gh
+
+      - name: Check for spec changes
+        id: spec-check
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
+          cd source-repo
+          ls
+          echo "Checking for changes in specification.json"
+          if git diff --quiet HEAD^ HEAD -- api/specification.json; then
+            echo "No changes detected in specification.json. Exiting."
+            echo "changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Changes detected in specification.json. Proceeding with update and PR creation."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Check current directory and list files
+        if: steps.spec-check.outputs.changed == 'true'
         run: |
           pwd
           ls -la
 
-      - name: Create branch, update spec, commit, push and create a PR
-        env:
-          GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
-        run: |
-          cd target-repo
-          ls
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+      # - name: Create branch, update spec, commit, push and create a PR
+      #   env:
+      #     GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+      #   run: |
+      #     cd target-repo
+      #     ls
+      #     git config user.name "github-actions"
+      #     git config user.email "github-actions@github.com"
 
-          for env in dev test uat prod; do
-            git checkout $env
-            git pull origin $env
-            BRANCH_NAME="auto-update-$env-$(date +%s)"
-            git checkout -b $BRANCH_NAME
-            cd ..
-            pwd
-            ls -la
-            # cp ../source-repo/api/specification.json ./published-artifacts/apis/dev-api/specification.json
+      #     for env in dev test uat prod; do
+      #       git checkout $env
+      #       git pull origin $env
+      #       BRANCH_NAME="auto-update-$env-$(date +%s)"
+      #       git checkout -b $BRANCH_NAME
+      #       cp ../source-repo/api/specification.json ./published-artifacts/apis/dev-api/specification.json
 
-            echo "commiting code to target repo"
+      #       echo "commiting code to target repo"
 
-            git add .
-            git commit -m "Automated update" || echo "No changes to commit"
-            git push origin $BRANCH_NAME
+      #       git add .
+      #       git commit -m "Automated update" || echo "No changes to commit"
+      #       git push origin $BRANCH_NAME
 
-            gh pr create \
-                --title "Automated update" \
-                --body "This PR was created automatically by GitHub Actions." \
-                --base $env \
-                --head $BRANCH_NAME
+      #       gh pr create \
+      #           --title "Automated update" \
+      #           --body "This PR was created automatically by GitHub Actions." \
+      #           --base $env \
+      #           --head $BRANCH_NAME
 
-            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-          done
+      #       echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+      #     done
