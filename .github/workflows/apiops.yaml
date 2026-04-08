@@ -86,7 +86,7 @@ jobs:
             git pull origin $env
             BRANCH_NAME="auto-update-$env-$(date +%s)"
             git checkout -b $BRANCH_NAME
-            cp ../source-repo/${{inputs.spec_file_path}} ./published-artifacts/apis/$API_NAME/specification.json
+            cp ../source-repo/${{inputs.spec_file_path}} ./published-artifacts/apis/$env-$API_NAME/specification.json
 
             echo "commiting code to target repo"
 
