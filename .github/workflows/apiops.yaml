@@ -2,13 +2,18 @@ name: Update file in another repo and create PR
 
 on:
   workflow_call:
+    inputs:
+      api_name:
+        description: "Name of the API to update"
+        required: false
+        type: string
     secrets:
         TARGET_REPO_TOKEN:
             required: true
 
 
 env:
-    API_NAME: "dev-api"
+    API_NAME: ${{ inputs.api_name }}
 jobs:
   update-and-pr:
     runs-on: ubuntu-latest
@@ -41,11 +46,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh
 
+      - name: Check current directory and list files
+        run: |
+          pwd
+          ls -la
+
       - name: Create branch, update spec, commit, push and create a PR
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
         run: |
           cd target-repo
+          ls
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
@@ -54,7 +65,7 @@ jobs:
             git pull origin $env
             BRANCH_NAME="auto-update-$env-$(date +%s)"
             git checkout -b $BRANCH_NAME
-            cp ../source-repo/api/specification.json apis/$(API_NAME)/specification.json
+            cp ../source-repo/api/specification.json apis/$API_NAME/specification.json
             echo "Updated at $(date)" >> example.txt
 
             echo "commiting code to target repo"
