@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v4
+        with:
+          path: source-repo
+          fetch-depth: 0
 
       - name: Checkout target repo
         uses: actions/checkout@v4
@@ -51,6 +54,7 @@ jobs:
             git pull origin $env
             BRANCH_NAME="auto-update-$env-$(date +%s)"
             git checkout -b $BRANCH_NAME
+            cp ../source-repo/api/specification.json apis/$(API_NAME)/specification.json
             echo "Updated at $(date)" >> example.txt
 
             echo "commiting code to target repo"
